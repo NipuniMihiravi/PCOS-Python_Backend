@@ -6,13 +6,13 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Load the trained model and encoders
-with open('PCOS2.pkl', 'rb') as file:
+
+with open('PCOSpython.pkl', 'rb') as file:
     data = pickle.load(file)
 
-model = data["model"]  # ✅ Ensure this is a trained model
+model = data["model"]
 
-# Feature encoders (Ensure these were saved correctly during training)
+
 le_Age = data.get("le_Age")
 le_Weight_kg = data.get("le_Weight_kg")
 le_Hormonal_Imbalance = data.get("le_Hormonal_Imbalance")
@@ -32,7 +32,7 @@ def predict():
     input_data = request.json
 
     try:
-        # Encode input features using the saved encoders
+
         features = [
             le_Age.transform([input_data["age"]])[0],
             le_Weight_kg.transform([input_data["weight_kg"]])[0],
@@ -48,16 +48,16 @@ def predict():
             le_Exercise_Benefit.transform([input_data["exercise_benefit"]])[0],
         ]
 
-        # Convert to NumPy array and reshape
+
         features = np.array(features).reshape(1, -1)
 
-        # Predict PCOS
+
         pcos_prediction = model.predict(features)[0]  # ✅ Extract prediction
 
-        # Decode prediction if label encoder exists
+
         pcos_result = le_PCOS.inverse_transform([pcos_prediction])[0] if le_PCOS else int(pcos_prediction)
 
-        # Return result
+
         return jsonify({"PCOS": pcos_result})
 
     except Exception as e:
